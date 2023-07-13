@@ -18,7 +18,7 @@ defmodule LiveFlow do
             >
         </svg>
       <% end %>
-      <div id={@id} class="relative w-full h-full" phx-hook="LiveFlow" data-ids={@node_ids} >
+      <div id={@id} class="relative w-full h-full select-none" phx-hook="LiveFlow" data-ids={@node_ids} >
         <div id={"#{@id}-canvas-wrapper"} style="width: 100%; height: 100%" class="relative" phx-update="ignore">
           <canvas width="100%" height="100%" id={"#{@id}-canvas"} phx-update="ignore">
             Canvas Not Supported
@@ -29,7 +29,7 @@ defmodule LiveFlow do
         </svg>
       </div>
       <%= for node <- @nodes do %>
-        <div style={"position: absolute; display: none"} id={"live-flow-node-#{node.id}-container"} data-node-id={node.id} data-flow-id={@id} phx-hook="LiveFlowNode">
+        <div style={"position: absolute; display: none;#{height_and_width(node)}"} id={"live-flow-node-#{node.id}-container"} data-node-id={node.id} data-flow-id={@id} phx-hook="LiveFlowNode">
           <%= for handle <- node.handles do %>
             <.handle handle={handle} node={node} />
           <% end %>
@@ -52,13 +52,13 @@ defmodule LiveFlow do
     ~H"""
     <%= case @handle.location do %>
       <% :top -> %>
-        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; left: #{@handle.ratio || 50}%; transform: translate(-50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
+        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; top: 0; left: #{@handle.ratio || 50}%; transform: translate(-50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
       <% :bottom -> %>
-        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; left: #{@handle.ratio || 50}%; transform: translate(-50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
+        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; bottom: 0; left: #{@handle.ratio || 50}%; transform: translate(-50%, 50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
       <% :right -> %>
-        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; top: #{@handle.ratio || 50}%; transform: translate(-50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
+        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; right: 0; top: #{@handle.ratio || 50}%; transform: translate(50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
       <% :left -> %>
-        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; top: #{@handle.ratio || 50}%;  transform: translate(-50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
+        <div id={"live-flow-handle-#{@handle.id}"} data-flow-is="handle" data-node={@node.id} style={"height: 12px; width: 12px; position: absolute; background-color: gray; left: 0; top: #{@handle.ratio || 50}%;  transform: translate(-50%, -50%)"} class={"live-flow-handle#{if @handle.primary, do: " live-flow-handle-primary"} #{@handle.class}"}/>
     <% end %>
     """
   end
@@ -80,5 +80,17 @@ defmodule LiveFlow do
 
   defp assign_node_ids(socket) do
     assign(socket, :node_ids, Enum.map_join(socket.assigns.nodes, ",", & &1.id))
+  end
+
+  defp height_and_width(node) do
+    " "
+    |> add_property("height", node.position && node.position.height)
+    |> add_property("width", node.position && node.position.width)
+  end
+
+  defp add_property(style, _name, nil), do: style
+
+  defp add_property(style, name, value) do
+    "#{style} #{name}: #{value};"
   end
 end
