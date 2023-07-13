@@ -1,0 +1,11 @@
+{
+  "name": "live_flow",
+  "version": "0.2.0",
+  "main": "lib/hook.js",
+  "repository": {},
+  "files": [
+    "README.md",
+    "package.json",
+    "lib/hook.js"
+  ]
+}
